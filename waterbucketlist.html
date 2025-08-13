@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Bucket List – Create, Track, and Celebrate Your Goals</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* --- General & Root Styles --- */
+        :root {
+            --primary-color: #ffffff;
+            --secondary-color: #f0f4f8;
+            --accent-color: #4a90e2;
+            --accent-hover-color: #357abd;
+            --text-color: #333333;
+            --completed-text-color: #999999;
+            --danger-color: #e94b3cff;
+            --danger-hover-color: #c0392b;
+            --success-color: #2ecc71;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        /* --- Main App Container --- */
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--primary-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            overflow: hidden;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            color: var(--accent-color);
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        header p {
+            color: #777;
+            font-size: 1rem;
+        }
+
+        /* --- Form for Adding Items --- */
+        #add-item-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        #item-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        #item-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        #add-item-button {
+            padding: 0 20px;
+            border: none;
+            background: var(--accent-color);
+            color: white;
+            border-radius: var(--border-radius);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #add-item-button:hover {
+            background: var(--accent-hover-color);
+        }
+
+        /* --- Stats and Progress Bar --- */
+        #stats-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 20px;
+            height: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 0%; /* Initially 0% */
+            height: 100%;
+            background-color: var(--success-color);
+            border-radius: 20px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #stats-text {
+            text-align: right;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        #stats-text #completed-count {
+            color: var(--success-color);
+        }
+
+
+        /* --- Bucket List Items --- */
+        #bucket-list {
+            list-style: none;
+            max-height: 40vh;
+            overflow-y: auto;
+            padding-right: 10px; /* For scrollbar spacing */
+        }
+        
+        /* Custom Scrollbar */
+        #bucket-list::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        #bucket-list::-webkit-scrollbar-track {
+          background: var(--secondary-color);
+          border-radius: 10px;
+        }
+
+        #bucket-list::-webkit-scrollbar-thumb {
+          background: #ccc;
+          border-radius: 10px;
+        }
+
+        #bucket-list::-webkit-scrollbar-thumb:hover {
+          background: #aaa;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        .list-item.completed {
+            background: #e9f8f1;
+        }
+        
+        .list-item.completed .item-text {
+            text-decoration: line-through;
+            color: var(--completed-text-color);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .list-item .item-text {
+            flex-grow: 1;
+            margin: 0 15px;
+        }
+
+        .list-item .item-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            margin-left: 5px;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .list-item .item-actions button:hover {
+            transform: scale(1.2);
+        }
+        
+        .complete-btn { color: var(--success-color); }
+        .delete-btn { color: var(--danger-color); }
+        .delete-btn:hover { color: var(--danger-hover-color); }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            .app-container {
+                padding: 20px;
+            }
+            header h1 {
+                font-size: 1.8rem;
+            }
+            #item-input {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1><i class="fa-solid fa-bucket"></i> Dream Bucket List</h1>
+            <p>Create, Track, and Celebrate Your Goals</p>
+        </header>
+        
+        <main>
+            <form id="add-item-form">
+                <input type="text" id="item-input" placeholder="e.g., Learn to play the guitar" required autocomplete="off">
+                <button type="submit" id="add-item-button" aria-label="Add Item"><i class="fa-solid fa-plus"></i></button>
+            </form>
+
+            <section id="stats-section">
+                <div class="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+                 <p id="stats-text">
+                    Completed: <span id="completed-count">0</span> / <span id="total-count">0</span>
+                </p>
+            </section>
+
+            <section>
+                <ul id="bucket-list">
+                    </ul>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Element Selection ---
+            const addItemForm = document.getElementById('add-item-form');
+            const itemInput = document.getElementById('item-input');
+            const bucketList = document.getElementById('bucket-list');
+            const totalCountEl = document.getElementById('total-count');
+            const completedCountEl = document.getElementById('completed-count');
+            const progressBar = document.getElementById('progress-bar');
+            
+            // --- State Management ---
+            // Load items from localStorage or initialize as an empty array
+            let items = JSON.parse(localStorage.getItem('bucketListItems')) || [];
+
+            // --- Core Functions ---
+
+            /**
+             * Saves the current list of items to localStorage.
+             */
+            const saveItems = () => {
+                localStorage.setItem('bucketListItems', JSON.stringify(items));
+            };
+
+            /**
+             * Renders all items to the DOM, updates stats, and saves the state.
+             */
+            const render = () => {
+                // Clear the current list in the DOM
+                bucketList.innerHTML = '';
+                
+                // If there are no items, show a placeholder message (optional)
+                if (items.length === 0) {
+                    bucketList.innerHTML = '<li class="list-item" style="justify-content: center; color: #888;">Your bucket list is empty!</li>';
+                } else {
+                    // Create and append each list item
+                    items.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.classList.add('list-item');
+                        listItem.dataset.id = item.id; // Use data attribute to store the ID
+
+                        if (item.completed) {
+                            listItem.classList.add('completed');
+                        }
+
+                        listItem.innerHTML = `
+                            <span class="item-text">${item.text}</span>
+                            <div class="item-actions">
+                                <button class="complete-btn" aria-label="Mark as complete">
+                                    <i class="fa-solid ${item.completed ? 'fa-circle-check' : 'fa-circle'}"></i>
+                                </button>
+                                <button class="delete-btn" aria-label="Delete item">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        `;
+                        bucketList.appendChild(listItem);
+                    });
+                }
+                
+                updateStats();
+                saveItems();
+            };
+
+            /**
+             * Updates the total/completed counts and the progress bar.
+             */
+            const updateStats = () => {
+                const totalItems = items.length;
+                const completedItems = items.filter(item => item.completed).length;
+
+                totalCountEl.textContent = totalItems;
+                completedCountEl.textContent = completedItems;
+                
+                // Update progress bar
+                const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
+                progressBar.style.width = `${progressPercentage}%`;
+            };
+
+            /**
+             * Adds a new item to the list.
+             * @param {string} text - The text content of the new item.
+             */
+            const addItem = (text) => {
+                const newItem = {
+                    id: Date.now(), // Unique ID using timestamp
+                    text: text,
+                    completed: false
+                };
+                items.push(newItem);
+                render();
+            };
+            
+            /**
+             * Toggles the completed status of an item.
+             * @param {number} id - The ID of the item to toggle.
+             */
+            const toggleComplete = (id) => {
+                const item = items.find(item => item.id === id);
+                if (item) {
+                    item.completed = !item.completed;
+                    render();
+                }
+            };
+            
+            /**
+             * Deletes an item from the list.
+             * @param {number} id - The ID of the item to delete.
+             */
+            const deleteItem = (id) => {
+                items = items.filter(item => item.id !== id);
+                render();
+            };
+
+            // --- Event Listeners ---
+
+            // Handle form submission to add a new item
+            addItemForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent page reload
+                const text = itemInput.value.trim();
+                if (text) {
+                    addItem(text);
+                    itemInput.value = ''; // Clear input field
+                    itemInput.focus();
+                }
+            });
+
+            // Use event delegation for complete and delete buttons
+            bucketList.addEventListener('click', (e) => {
+                const target = e.target;
+                const listItem = target.closest('.list-item');
+                if (!listItem) return;
+
+                const id = Number(listItem.dataset.id);
+
+                // Check if the complete button or its icon was clicked
+                if (target.closest('.complete-btn')) {
+                    toggleComplete(id);
+                }
+                
+                // Check if the delete button or its icon was clicked
+                if (target.closest('.delete-btn')) {
+                    // Add a temporary animation before removing
+                    listItem.style.transition = 'opacity 0.3s, transform 0.3s';
+                    listItem.style.opacity = '0';
+                    listItem.style.transform = 'translateX(20px)';
+                    setTimeout(() => deleteItem(id), 300);
+                }
+            });
+
+            // --- Initial Load ---
+            // Render the initial list from localStorage on page load
+            render();
+        });
+    </script>
+
+</body>
+</html>
